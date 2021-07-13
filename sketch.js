@@ -1,186 +1,85 @@
-var path,mainCyclist;
-var player1,player2,player3;
-var pathImg,mainRacerImg1,mainRacerImg2;
-
-var oppPink1Img,oppPink2Img;
-var oppYellow1Img,oppYellow2Img;
-var oppRed1Img,oppRed2Img;
-var gameOverImg,cycleBell;
-
-var pinkCG, yellowCG,redCG; 
-
-var END =0;
-var PLAY =1;
-var gameState = PLAY;
-
-var distance=0;
-var gameOver, restart;
+var bg, sleep, brush, gym, bath, move, astro, eat;
 
 function preload(){
-  pathImg = loadImage("images/Road.png");
-  mainRacerImg1 = loadAnimation("images/mainPlayer1.png","images/mainPlayer2.png");
-  mainRacerImg2= loadAnimation("images/mainPlayer3.png");
-  
-  oppPink1Img = loadAnimation("images/opponent1.png","images/opponent2.png");
-  oppPink2Img = loadAnimation("images/opponent3.png");
-  
-  oppYellow1Img = loadAnimation("images/opponent4.png","images/opponent5.png");
-  oppYellow2Img = loadAnimation("images/opponent6.png");
-  
-  oppRed1Img = loadAnimation("images/opponent7.png","images/opponent8.png");
-  oppRed2Img = loadAnimation("images/opponent9.png");
-  
-  cycleBell = loadSound("sound/bell.mp3");
-  gameOverImg = loadImage("images/gameOver.png");
+  bg = loadImage("image/iss.png");
+  sleep = loadAnimation("image/sleep.png");
+  brush = loadAnimation("image/brush.png");
+  gym = loadAnimation("image/gym1.png","image/gym1.png","image/gym11.png","image/gym12.png",);
+  bath = loadAnimation("image/bath1.png","image/bath2.png",);
+  move = loadAnimation("image/move.png", "image/move1.png");
+  eat = loadAnimation("image/eat1.png", "image/eat2.png");
 }
 
-function setup(){
-  
-createCanvas(1200,300);
-// Moving background
-path=createSprite(100,150);
-path.addImage(pathImg);
-path.velocityX = -5;
 
-//creating boy running
-mainCyclist  = createSprite(70,150);
-mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
-mainCyclist.scale=0.07;
-  
-//set collider for mainCyclist
-mainCyclist.setCollider("rectangle",0,0,40,40);
-  
-gameOver = createSprite(650,150);
-gameOver.addImage(gameOverImg);
-gameOver.scale = 0.8;
-gameOver.visible = false;  
-  
-pinkCG = new Group();
-yellowCG = new Group();
-redCG = new Group();
-  
+
+
+
+
+function setup() {
+   createCanvas(600,500);
+   astro = createSprite(300,230);
+   astro.addAnimation("sleeping",sleep);
+   astro.scale = 0.1;
+
 }
 
 function draw() {
-  background(0);
-  
-  drawSprites();
+  background(bg); 
   textSize(20);
   fill(255);
-  text("Distance: "+ distance,900,30);
+  text("instrucation", 20,35) ;
+  textSize(15);
+  text("upArrow = brushing ", 20,55);
+  text("downArrow = gymming ", 20,70); 
   
-  if(gameState===PLAY){
-    
-   distance = distance + Math.round(getFrameRate()/50);
-   path.velocityX = -(6 + 2*distance/150);
-  
-   mainCyclist.y = World.mouseY;
-  
-   edges= createEdgeSprites();
-   mainCyclist .collide(edges);
-  
-  //code to reset the background
-  if(path.x < 0 ){
-    path.x = width/2;
+  if(keyDown("UP_ARROW")){
+    astro.addAnimation ("brushing", brush);
+    astro.changeAnimation("brushing");
+    astro.y = 350;
+    astro.velocityX = 0;
+    astro.velocityY = 0; 
   }
-  
-    //code to play cycle bell sound
-  if(keyDown("space")) {
-    cycleBell.play();
+
+  if(keyDown("DOWN_ARROW")){
+    astro.addAnimation ("gymming", gym);
+    astro.changeAnimation("gymming");
+    astro.y = 350;
+    astro.velocityX = 0;
+    astro.velocityY = 0; 
   }
-  
-  //creating continous opponent players
-  var select_oppPlayer = Math.round(random(1,3));
-  
-  if (World.frameCount % 150 == 0) {
-    if (select_oppPlayer == 1) {
-      pinkCyclists();
-    } else if (select_oppPlayer == 2) {
-      yellowCyclists();
-    } else {
-      redCyclists();
-    }
+
+  if(keyDown("LEFT_ARROW")){
+    astro.addAnimation ("eating", eat);
+    astro.changeAnimation("eating");
+    astro.x = 150;
+    astro.y = 350;
+    astro.velocityX = 0.5;
+    astro.velocityY = 0.5; 
   }
-  
-   if(pinkCG.isTouching(mainCyclist)){
-     gameState = END;
-     player1.velocityY = 0;
-     player1.addAnimation("opponentPlayer1",oppPink2Img);
-    }
-    
-    if(yellowCG.isTouching(mainCyclist)){
-      gameState = END;
-      player2.velocityY = 0;
-      player2.addAnimation("opponentPlayer2",oppYellow2Img);
-    }
-    
-    if(redCG.isTouching(mainCyclist)){
-      gameState = END;
-      player3.velocityY = 0;
-      player3.addAnimation("opponentPlayer3",oppRed2Img);
-    }
-    
-}else if (gameState === END) {
-    gameOver.visible = true;
-  
-    textSize(20);
-    fill(255);
-    text("Press Up Arrow to Restart the game!", 500,200);
-  
-    path.velocityX = 0;
-    mainCyclist.velocityY = 0;
-    mainCyclist.addAnimation("SahilRunning",mainRacerImg2);
-  
-    pinkCG.setVelocityXEach(0);
-    pinkCG.setLifetimeEach(-1);
-  
-    yellowCG.setVelocityXEach(0);
-    yellowCG.setLifetimeEach(-1);
-  
-    redCG.setVelocityXEach(0);
-    redCG.setLifetimeEach(-1);
-    
-    if(keyDown("UP_ARROW")) {
-      reset();
-    }
-}
-}
 
-function pinkCyclists(){
-        player1 =createSprite(1100,Math.round(random(50, 250)));
-        player1.scale =0.06;
-        player1.velocityX = -(6 + 2*distance/150);
-        player1.addAnimation("opponentPlayer1",oppPink1Img);
-        player1.setLifetime=170;
-        pinkCG.add(player1);
-}
+  if(keyDown("RIGHT_ARROW")){
+    astro.addAnimation ("bathing", bath);
+    astro.changeAnimation("bathing");
+    astro.x = 300;
+    astro.velocityX = 0;
+    astro.velocityY = 0; 
+  }
 
-function yellowCyclists(){
-        player2 =createSprite(1100,Math.round(random(50, 250)));
-        player2.scale =0.06;
-        player2.velocityX = -(6 + 2*distance/150);
-        player2.addAnimation("opponentPlayer2",oppYellow1Img);
-        player2.setLifetime=170;
-        yellowCG.add(player2);
-}
-
-function redCyclists(){
-        player3 =createSprite(1100,Math.round(random(50, 250)));
-        player3.scale =0.06;
-        player3.velocityX = -(6 + 2*distance/150);
-        player3.addAnimation("opponentPlayer3",oppRed1Img);
-        player3.setLifetime=170;
-        redCG.add(player3);
-}
-
-function reset(){
-  gameState = PLAY;
-  gameOver.visible = false;
-  mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
+  if(keyDown("m key")){
+    astro.addAnimation ("moveing", move);
+    astro.changeAnimation("move");
+    astro.y = 350;
+    astro.x = 300;
+    astro.velocityX = 0;
+    astro.velocityY = 0; 
+  }
+  text("leftArrow = eating ", 20,85);
+  text("rightArrow = bathing ", 20,100);
+  text("m key = moveing ", 20, 115);
   
-  pinkCG.destroyEach();
-  yellowCG.destroyEach();
-  redCG.destroyEach();
-  
-  distance = 0;
+  edges = createEdgeSprites();
+  astro.bounceOff(edges);
+
+ 
+  drawSprites();
 }
